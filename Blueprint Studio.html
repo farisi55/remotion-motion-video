@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blueprint Studio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap">
+<style>
+:root{--bg:#0f2a4a;--panel:#143760;--line:#6fa8dc55;--ink:#eaf3ff;--mute:#9fc0e4;--acc:#ffd23f;--accink:#1a1a1a;--field:#0c2340;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f2a4a}}
+:root[data-theme="dark"]{--bg:#0f2a4a}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "Bricolage Grotesque",system-ui,sans-serif;
+background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:32px 32px;background-attachment:fixed}
+main{max-width:860px;margin:0 auto;padding:28px 18px 80px}
+h1{font-size:clamp(2.2rem,7vw,3.6rem);line-height:1;margin:0 0 8px;font-weight:800;letter-spacing:-.02em}
+.sub{color:var(--mute);margin:0 0 28px;max-width:56ch}
+section{background:var(--panel);border:1.5px solid var(--mute);padding:20px;margin:0 0 22px;position:relative}
+section::before{content:"";position:absolute;left:-1.5px;top:-1.5px;width:18px;height:18px;border-top:4px solid var(--acc);border-left:4px solid var(--acc)}
+h2{margin:0 0 4px;font-size:1.3rem}
+.hint{color:var(--mute);margin:0 0 16px;font-size:.92rem}
+label{display:block;font-size:.88rem;color:var(--mute);margin-bottom:4px}
+input,select,textarea{width:100%;background:var(--field);color:var(--ink);border:1px solid var(--mute);padding:10px;font:inherit;border-radius:0}
+textarea{resize:vertical;min-height:84px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px}
+.btn{background:var(--acc);color:var(--accink);border:0;padding:11px 18px;font:600 1rem inherit;font-family:inherit;cursor:pointer;margin-top:16px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--mute);padding:6px 12px;margin:0;font-size:.85rem}
+.beat{border-top:1px dashed var(--mute);padding-top:14px;margin-top:14px}
+.beat header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:600}
+.empty{color:var(--mute)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:14px}
+.card{background:var(--field);border:1.5px solid var(--line);padding:12px;cursor:pointer;text-align:left;color:var(--ink);font:inherit}
+.card b{display:block}
+.card span{font-size:.85rem;color:var(--mute)}
+.card[aria-pressed="true"]{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.sw{display:flex;gap:4px;margin-bottom:8px}.sw i{width:22px;height:14px;display:block}
+.chk{display:flex;gap:10px;align-items:flex-start;margin-top:16px;color:var(--ink);font-size:1rem}
+.chk input{width:auto;margin-top:5px}
+pre{background:var(--field);border:1px solid var(--mute);padding:14px;white-space:pre-wrap;word-break:break-word;overflow-x:auto;max-height:420px;overflow-y:auto;font:.88rem/1.5 ui-monospace,monospace}
+</style>
+</head>
+<body>
+<main>
+<h1>Blueprint Studio</h1>
+<p class="sub">Dari ide ke prompt video animasi. Tulis topik, biarkan cerita dibuat otomatis, pilih gaya, lalu salin prompt ke Claude.</p>
+
+<section id="s1">
+<h2>1. Ide</h2><p class="hint">Cukup topik singkat. Sisanya bisa diatur.</p>
+<label for="topik">Topik</label>
+<input id="topik" placeholder="Contoh: Bagaimana vaksin melatih tubuh">
+<div class="grid">
+<div><label for="durasi">Durasi</label><select id="durasi"><option value="30">30 detik</option><option value="60" selected>60 detik</option><option value="90">90 detik</option></select></div>
+<div><label for="audiens">Audiens</label><select id="audiens"><option>Umum</option><option>Pelajar</option><option>Profesional</option><option>Anak-anak</option></select></div>
+<div><label for="nada">Nada bicara</label><select id="nada"><option>Santai</option><option>Edukatif</option><option>Dramatis</option><option>Jenaka</option></select></div>
+<div><label for="bahasa">Bahasa</label><select id="bahasa"><option>Indonesia</option><option>English</option></select></div>
+<div><label for="rasio">Rasio</label><select id="rasio"><option>16:9</option><option>9:16</option><option>1:1</option></select></div>
+</div>
+<label class="chk"><input type="checkbox" id="anti" checked><span><b>Anti slop:</b> larang frasa klise ala AI di narasi, lalu periksa dan tulis ulang otomatis bila masih lolos. Juga menambah larangan visual generik di prompt akhir.</span></label>
+<button class="btn" id="buat">Buat cerita</button>
+</section>
+
+<section id="s2">
+<h2>2. Cerita</h2><p class="hint">Edit narasi atau catatan visual langsung. Tombol Ulang membuat ulang satu beat.</p>
+<label for="mc">Mode cerita</label><select id="mc"><option value="auto">Dibuat otomatis dari topik</option><option value="manual">Tulis sendiri (tool hanya membuat visual)</option></select>
+<div id="man" hidden style="margin-top:12px"><label for="tempel">Tempel narasimu</label><textarea id="tempel" placeholder="Pisahkan beat dengan baris kosong. Kalau hanya satu paragraf, kalimatnya dibagi otomatis sesuai durasi."></textarea><button class="btn ghost" id="pecah" style="margin-top:8px">Pecah jadi beat</button> <button class="btn ghost" id="tambah" style="margin-top:8px">Tambah beat kosong</button><p class="hint" id="hit" style="margin:8px 0 0"></p></div>
+<div id="beats"><p class="empty">Belum ada cerita. Isi topik lalu tekan Buat cerita.</p></div>
+</section>
+
+<section id="s3">
+<h2>3. Gaya</h2><p class="hint">Pilih satu gaya visual. Gaya akan dimasukkan ke prompt.</p>
+<button class="btn" id="kej" style="margin:0 0 6px">Kejutkan aku</button><p class="hint" id="kejs" style="margin:6px 0 12px">Claude membuat gaya baru yang cocok dengan topik dan ceritamu.</p>
+<div class="grid">
+<div><label for="cari">Cari gaya</label><input id="cari" type="search" placeholder="Ketik nama atau ciri"></div>
+<div><label for="fam">Keluarga</label><select id="fam"><option value="">Semua</option></select></div>
+</div>
+<div class="cards" id="cards"></div>
+</section>
+
+<section id="s4">
+<h2>4. Mode dan prompt</h2><p class="hint">Salin narasi di bawah ke alat text-to-speech, lalu tempel SRT per kata dari hasilnya.</p>
+<label for="naskah">Naskah narasi (untuk TTS)</label>
+<textarea id="naskah" readonly></textarea>
+<button class="btn ghost" id="cn" style="margin-top:8px">Salin naskah</button> <button class="btn ghost" id="dn" style="margin-top:8px">Unduh naskah (.txt)</button>
+<div style="margin-top:16px"><label for="srt">SRT atau timestamp per kata</label>
+<textarea id="srt" placeholder="Tempel SRT dari file audio yang sama persis. Tanpa ini, waktu hanya perkiraan dan hampir pasti tidak sinkron."></textarea></div>
+<div style="margin-top:16px"><label for="hasil">Hasil akhir</label><select id="hasil"><option value="html">Animasi HTML (diputar di browser)</option><option value="hf">Video MP4 lewat HyperFrames (HTML ke MP4)</option><option value="rm">Video MP4 lewat Remotion (React ke MP4)</option></select></div>
+<div style="margin-top:12px"><label for="os">Perangkat untuk tutorial render (HyperFrames atau Remotion)</label><select id="os"><option>Windows</option><option>Mac</option><option>Linux</option><option>Hanya HP</option></select></div>
+<label class="chk"><input type="checkbox" id="sb" checked><span><b>Storyboard dulu:</b> Claude membuat storyboard visual dan menunggu persetujuanmu sebelum membangun animasi.</span></label>
+<button class="btn" id="gen">Buat prompt</button>
+<div id="out" hidden style="margin-top:16px"><pre id="prompt"></pre><button class="btn" id="cp">Salin prompt</button> <button class="btn ghost" id="dp">Unduh prompt (.txt)</button></div>
+</section>
+</main>
+<script>
+var STYLES=[
+{n:"Cyanotype Teknis",f:"Teknis",d:"Garis putih di atas biru cetak biru, label tangan.",c:["#0f2a4a","#eaf3ff","#ffd23f"]},
+{n:"Isometrik Bersih",f:"Teknis",d:"Objek isometrik, warna datar, bayangan lembut.",c:["#f2f4f8","#3a6ea5","#ff7a59"]},
+{n:"Papan Tulis Kapur",f:"Kelas",d:"Coretan kapur di papan hijau tua, animasi digambar.",c:["#1f3b2d","#f4f1e8","#f7c948"]},
+{n:"Kertas Potong",f:"Kerajinan",d:"Lapisan kertas berwarna dengan bayangan dalam.",c:["#f6e7cb","#d1495b","#00798c"]},
+{n:"Flat Vektor Cerah",f:"Modern",d:"Bentuk datar, warna jenuh, gerak cepat dan pantul.",c:["#fff","#5b4bff","#ff4d6d"]},
+{n:"Neon Malam",f:"Modern",d:"Garis neon di latar gelap, efek berpendar.",c:["#0b0f1a","#00f0ff","#ff2ec4"]},
+{n:"Gambar Tangan Tinta",f:"Kerajinan",d:"Sketsa tinta hitam dengan isian warna tipis.",c:["#fbfaf5","#222","#e4572e"]},
+{n:"Piksel Retro",f:"Retro",d:"Seni piksel 8-bit, palet terbatas, teks berkedip.",c:["#1a1c2c","#f4f4f4","#ef7d57"]},
+{n:"Komik Halftone",f:"Retro",d:"Titik halftone, panel komik, balon kata.",c:["#fff6d5","#e63946","#1d3557"]},
+{n:"Infografik Data",f:"Teknis",d:"Grafik dan ikon bergerak, angka besar jadi fokus.",c:["#ffffff","#0b3954","#bfd7ea"]},
+{n:"Vektor Datar Detail",f:"Modern",d:"Vektor datar tanpa outline, detail tinggi: tiap bentuk 2 sampai 3 nada, aksesori kecil jelas, latar menyesuaikan situasi.",c:["#e8305d","#f2e05a","#e8604c","#2a1850","#7b3ff2"]},
+{n:"Vektor Muncul Tenggelam",f:"Modern",d:"Vektor datar minimalis tanpa outline. Objek yang dijelaskan naik dari bawah garis tanah dan tenggelam lagi saat selesai; teks menempel dan bergerak mengikutinya. Latar dinamis, berganti bebas sesuai topik dan suasana tiap beat.",c:["#c7ece4","#e0553f","#aee0ff","#6f9aa6","#2b3338"]},
+{n:"Blok Plastik 3D",f:"Modern",d:"Dunia balok plastik: karakter dan objek dari kotak dan silinder, warna primer cerah, permukaan matte dengan stud bulat, bayangan tegas, kamera orbit atau isometrik. Latar dinamis.",c:["#e53935","#1e88e5","#fdd835","#43a047","#8d8f94"]},
+{n:"Doodle Tanpa Wajah",f:"Kerajinan",d:"Kartun doodle tangan: karakter tanpa wajah, outline gelap bergetar, arsir diagonal tipis, warna datar jenuh, balon kata dan garis gerak. Subtitle per kata menyala sesuai narasi. Latar dinamis.",c:["#fdd835","#16214a","#e53935","#1e88e5","#f4c9a0"]}
+];
+var BEATS=[
+{k:"Hook",v:[
+ ["Pernah bertanya-tanya soal {t}? Jawabannya lebih sederhana dari yang kamu kira.","Close-up objek utama, zoom cepat, teks judul muncul."],
+ ["Satu hal tentang {t} yang jarang dibicarakan.","Layar gelap, satu titik cahaya melebar jadi objek utama."]]},
+{k:"Masalah",v:[
+ ["Banyak orang salah paham soal {t}, dan itu membuat keputusan jadi keliru.","Dua panel: anggapan keliru vs kenyataan, tanda silang merah."],
+ ["Tanpa memahami {t}, kita sering menebak-nebak.","Karakter bingung dikelilingi tanda tanya."]]},
+{k:"Inti",v:[
+ ["Intinya begini: {t} bekerja lewat beberapa langkah kecil yang saling terhubung.","Diagram tiga simpul tersambung panah, tiap simpul menyala berurutan."],
+ ["Bayangkan {t} sebagai rangkaian mesin kecil yang bekerja bersama.","Animasi roda gigi saling mengunci, label muncul satu per satu."]]},
+{k:"Contoh",v:[
+ ["Ambil contoh sehari-hari: kamu pasti pernah mengalaminya tanpa sadar.","Adegan keseharian sederhana, sorot elemen kunci dengan lingkaran."],
+ ["Lihat bagaimana ini terjadi di dunia nyata.","Transisi dari diagram ke adegan nyata bergaya ilustrasi."]]},
+{k:"Penutup",v:[
+ ["Sekarang kamu paham {t}. Bagikan ke orang yang perlu tahu.","Rangkuman tiga ikon, ajakan bertindak di tengah layar."],
+ ["Itulah {t}. Sederhana, kan? Sampai jumpa di video berikutnya.","Kamera menjauh, objek utama mengecil, logo muncul."]]}
+];
+var $=function(i){return document.getElementById(i)},state={beats:[],style:null};
+function esc(s){return s.replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function pick(i,seed){var v=BEATS[i].v,x=v[seed%v.length];return{k:BEATS[i].k,seed:seed,n:x[0].replace(/\{t\}/g,$("topik").value.trim()),v:x[1]}}
+function render(){
+ var h=state.note?'<p class="hint">'+esc(state.note)+'</p>':"";state.beats.forEach(function(b,i){
+  h+='<div class="beat"><header><span>'+esc(state.manual?"Beat "+(i+1):b.k)+'</span><button class="btn ghost" '+(state.manual?'data-x="':'data-r="')+i+'">'+(state.manual?"Hapus":"Ulang")+'</button></header>'+
+  '<label for="n'+i+'">Narasi</label><textarea id="n'+i+'" data-n="'+i+'">'+esc(b.n)+'</textarea>'+
+  '<label for="v'+i+'" style="margin-top:8px">Catatan visual'+(state.manual?" (boleh kosong, Claude merancang sendiri)":"")+'</label><textarea id="v'+i+'" data-v="'+i+'">'+esc(b.v)+'</textarea><label for="a'+i+'" style="margin-top:8px">Aset foto (nama file dan fungsinya, boleh kosong)</label><input id="a'+i+'" data-a="'+i+'" placeholder="foto1.jpg: zoom pelan ke kiri" value="'+esc(b.a||"")+'"></div>'});
+ $("beats").innerHTML=h||'<p class="empty">'+(state.manual?"Belum ada beat. Tempel narasi lalu tekan Pecah jadi beat.":"Belum ada cerita. Isi topik lalu tekan Buat cerita.")+'</p>';sync()}
+function sync(){$("naskah").value=state.beats.map(function(b){return b.n}).join("\n\n");var w=state.beats.reduce(function(a,b){return a+(b.n.trim()?b.n.trim().split(/\s+/).length:0)},0);$("hit").textContent=state.manual&&w?"Sekitar "+w+" kata, kira-kira "+Math.round(w/2.2)+" detik bila dibaca normal.":""}
+function setMode(){state.manual=$("mc").value==="manual";$("man").hidden=!state.manual;$("buat").hidden=state.manual;state.beats=[];state.note="";render()}
+$("mc").onchange=setMode;
+function chunk(text){
+ var ps=text.split(/\n\s*\n/).map(function(x){return x.trim()}).filter(Boolean);
+ if(ps.length>1)return ps;
+ var ss=(text.match(/[^.!?]+[.!?]*\s*/g)||[]).map(function(x){return x.trim()}).filter(Boolean);
+ var d=+$("durasi").value,n=Math.min(d<=30?3:d<=60?5:6,ss.length)||1,sz=Math.ceil(ss.length/n),o=[];
+ for(var i=0;i<ss.length;i+=sz)o.push(ss.slice(i,i+sz).join(" "));return o}
+$("pecah").onclick=function(){var t=$("tempel").value.trim();if(!t){$("tempel").focus();return}
+ state.beats=chunk(t).map(function(x,i){return{k:"Beat "+(i+1),seed:0,n:x,v:""}});render()};
+$("tambah").onclick=function(){state.beats.push({k:"Beat "+(state.beats.length+1),seed:0,n:"",v:""});render()};
+$("beats").addEventListener("click",function(e){var x=e.target.getAttribute("data-x");if(x===null)return;state.beats.splice(+x,1);render()});
+var sampleP=null;
+function getSample(){if(!sampleP)sampleP=((window.claude&&claude.use)?claude.use("sample"):Promise.resolve(null)).catch(function(){return null});return sampleP}
+function brief(){var d=+$("durasi").value;return "Topik: "+$("topik").value.trim()+"\nDurasi video: "+d+" detik (total narasi sekitar "+Math.round(d*2.2)+" kata)\nAudiens: "+$("audiens").value+"\nNada bicara: "+$("nada").value+"\nBahasa narasi: "+$("bahasa").value+"\nRasio: "+$("rasio").value}
+var RULES="Aturan penulisan: kalimat pendek yang enak diucapkan. Satu ide per beat. Hook harus langsung ke fakta mengejutkan, angka, atau pertanyaan tajam; jangan mulai dengan 'Pernah bertanya-tanya', 'Tahukah kamu', atau sapaan. Gunakan analogi konkret dan satu contoh nyata dengan detail spesifik. Tutup dengan satu kalimat yang berkesan, bukan ajakan klise. Tanpa basa-basi dan tanpa pengulangan topik di tiap kalimat. Catatan visual harus konkret: apa yang tampak di layar, gerakannya, dan teks singkat di layar bila ada, ditulis dalam bahasa Indonesia.";
+var ANTI=" Anti slop: dilarang frasa klise AI seperti tahukah kamu, di era digital atau modern, mari kita selami, revolusi, bukan sekadar X melainkan Y, kunci utama, dalam video ini, sampai jumpa, kata sifat bombastis (luar biasa, menakjubkan, canggih), tanda pisah em dash, tiga serangkai yang dipaksakan, dan penutup motivasi. Pakai kata kerja konkret, angka, dan nama benda yang spesifik. Variasikan panjang kalimat. Jangan menjelaskan ulang apa yang sudah jelas.";
+var SLOP=[/tahukah kamu/i,/pernah (bertanya|membayangkan)/i,/di era (digital|modern)/i,/dunia yang (terus )?berkembang/i,/mari kita/i,/menyelami|selami/i,/revolusi/i,/bukan sekadar[^.]{0,60}(tetapi|melainkan|tapi)/i,/tak (hanya|cuma)[^.]{0,60}(tapi|tetapi|juga)/i,/kunci (utama|sukses)/i,/dalam video ini/i,/sampai jumpa/i,/luar biasa|menakjubkan|canggih/i,/game.?changer/i,/delve|tapestry|in today|let's dive|unlock|unleash/i,/\u2014/];
+function native(){return $("bahasa").value==="English"?" Gaya bahasa: tulis dalam bahasa Inggris Amerika lisan yang natural, bukan prosa terjemahan. Pakai kontraksi (it's, don't, you're), kata sehari-hari, ejaan dan satuan Amerika, kalimat pendek dan aktif. Idiom hanya yang memang lazim. Hindari kata kaku seperti utilize, furthermore, moreover, in order to, plethora. Tulis angka seperti diucapkan. Baca ulang dengan suara dan ubah kalimat yang terdengar seperti terjemahan. Catatan visual tetap dalam bahasa Indonesia.":" Gaya bahasa: tulis seperti penutur asli Indonesia yang sedang ngobrol, bukan terjemahan dari bahasa Inggris. Pakai kata sehari-hari (bisa, ada, jadi, soalnya, nah, kalau, biar), sapaan kamu atau kita, dan kalimat aktif. Hindari kata kaku seperti merupakan, terdapat, dapat dikatakan, mampu untuk, oleh karena itu, dengan demikian, hal tersebut. Boleh pakai nggak atau udah bila nadanya santai. Jangan campur istilah Inggris kecuali yang memang lazim dipakai orang Indonesia. Tulis angka dan satuan seperti diucapkan (tiga puluh persen, bukan 30%). Baca ulang dengan suara dan ubah kalimat yang terdengar seperti terjemahan."}
+var STIFFID=[/merupakan|terdapat|dapat dikatakan|mampu untuk|oleh karena itu|dengan demikian|hal tersebut|dalam rangka|adalah suatu/i],STIFFEN=[/utilize|furthermore|moreover|in order to|plethora|it is important to note/i];
+function rules(){return RULES+native()+($("anti").checked?ANTI:"")}
+function slop(arr){var t=arr.map(function(b){return b.n}).join(" "),st=$("bahasa").value==="English"?STIFFEN:STIFFID;return ($("anti").checked?SLOP:[]).concat(st).filter(function(r){return r.test(t)}).length}
+async function clean(s,arr){
+ if(!slop(arr))return arr;
+ try{var r=await s.json("Naskah video animasi ini mengandung frasa klise ala AI. Tulis ulang HANYA kalimat yang klise, pertahankan makna, urutan, jumlah beat, dan panjang kira-kira sama. "+brief().replace(/\n/g," | ")+" "+ANTI+native()+" Naskah: "+JSON.stringify(arr.map(function(b){return{k:b.k,n:b.n,v:b.v}}))+" Balas HANYA JSON array dengan bentuk sama: k, n, v.");
+  if(Array.isArray(r)&&r.length===arr.length)return r.map(function(x,i){return{k:String(x.k||arr[i].k),seed:arr[i].seed,n:String(x.n||arr[i].n),v:String(x.v||arr[i].v)}})}catch(e){}
+ return arr}
+async function aiStory(){
+ var s=await getSample();if(!s)return null;
+ var d=+$("durasi").value,names=d<=30?["Hook","Inti","Penutup"]:d<=60?["Hook","Masalah","Inti","Contoh","Penutup"]:["Hook","Masalah","Inti","Contoh","Dampak","Penutup"];
+ var r=await s.json("Kamu penulis naskah video animasi penjelasan. Tulis ceritanya.\n"+brief()+"\nBeat berurutan: "+names.join(", ")+".\n"+rules()+"\nBalas HANYA JSON array tanpa teks lain, satu objek per beat: {\"k\":nama beat,\"n\":narasi,\"v\":catatan visual}.");
+ if(!Array.isArray(r)||!r.length)return null;
+ return await clean(s,r.map(function(x){return{k:String(x.k||""),seed:0,n:String(x.n||""),v:String(x.v||"")}}))}
+$("buat").onclick=async function(){
+ if(!$("topik").value.trim()){$("topik").focus();return}
+ var btn=this,old=btn.textContent;btn.disabled=true;btn.textContent="Menulis cerita...";state.note="";
+ try{var ai=await aiStory();
+  if(ai){state.beats=ai}else throw 0}
+ catch(e){var d=+$("durasi").value,use=d<=30?[0,2,4]:BEATS.map(function(_,i){return i});
+  state.beats=use.map(function(i){return pick(i,0)});state.note="Penulisan AI tidak tersedia, jadi cerita dibuat dari templat dasar. Edit sesuai kebutuhan."}
+ btn.disabled=false;btn.textContent=old;render();$("s2").scrollIntoView()};
+$("beats").addEventListener("click",async function(e){var r=e.target.getAttribute("data-r");if(r===null)return;
+ var btn=e.target,b=state.beats[r],old=btn.textContent;btn.disabled=true;btn.textContent="Menulis...";
+ try{var s=await getSample();if(!s)throw 0;
+  var ctx=state.beats.map(function(x,j){return(j+1)+". "+x.k+": "+x.n}).join("\n");
+  var o=await s.json("Tulis ulang SATU beat naskah video animasi dengan sudut pandang atau analogi yang berbeda dari versi lama.\n"+brief()+"\nSeluruh cerita saat ini:\n"+ctx+"\nBeat yang ditulis ulang: nomor "+(+r+1)+" ("+b.k+"). Versi lama: "+b.n+"\nPanjang narasi kira-kira sama dan harus nyambung dengan beat sebelum dan sesudahnya.\n"+rules()+"\nBalas HANYA JSON objek: {\"n\":narasi,\"v\":catatan visual}.");
+  if(!o||!o.n)throw 0;var nb=await clean(s,[{k:b.k,seed:b.seed+1,n:String(o.n),v:String(o.v||b.v)}]);nb[0].a=b.a;state.beats[r]=nb[0]}
+ catch(err){var i=BEATS.findIndex(function(x){return x.k===b.k});if(i<0)i=2;var n=pick(i,b.seed+1);n.k=b.k;n.seed=b.seed+1;n.a=b.a;state.beats[r]=n}
+ render()});
+$("beats").addEventListener("input",function(e){var t=e.target,n=t.getAttribute("data-n"),v=t.getAttribute("data-v");
+ if(n!==null){state.beats[n].n=t.value;sync()}if(v!==null)state.beats[v].v=t.value;var a=t.getAttribute("data-a");if(a!==null)state.beats[a].a=t.value});
+function cards(){var q=$("cari").value.toLowerCase(),f=$("fam").value,h="";
+ STYLES.forEach(function(s,i){if(f&&s.f!==f)return;if(q&&(s.n+s.d+s.f).toLowerCase().indexOf(q)<0)return;
+  h+='<button class="card" data-s="'+i+'" aria-pressed="'+(state.style===i)+'"><div class="sw">'+s.c.map(function(c){return'<i style="background:'+c+'"></i>'}).join("")+'</div><b>'+s.n+'</b><span>'+s.d+'</span></button>'});
+ $("cards").innerHTML=h||'<p class="empty">Tidak ada gaya yang cocok. Ubah kata kunci atau keluarga.</p>'}
+var fams=[];STYLES.forEach(function(s){if(fams.indexOf(s.f)<0)fams.push(s.f)});
+fams.forEach(function(f){var o=document.createElement("option");o.textContent=f;o.value=f;$("fam").appendChild(o)});
+$("cari").oninput=cards;$("fam").onchange=cards;
+$("cards").addEventListener("click",function(e){var c=e.target.closest(".card");if(!c)return;state.style=+c.getAttribute("data-s");cards()});
+cards();
+$("kej").onclick=async function(){
+ var btn=this,old=btn.textContent,ctx=state.beats.length?state.beats.map(function(b,i){return(i+1)+". "+b.n}).join(" "):$("topik").value.trim();
+ if(!ctx){$("kejs").textContent="Isi topik atau buat ceritanya dulu, supaya gayanya bisa disesuaikan.";return}
+ btn.disabled=true;btn.textContent="Mencari gaya...";$("kejs").textContent="";
+ var st=null;
+ try{var s=await getSample();if(!s)throw 0;
+  var ar=["kertas potong","risograph","cukil kayu","glitch VHS","isometrik","tinta dan cat air","mozaik","claymorphism","low-poly","poster konstruktivis","kolase koran","kaca patri","siluet bayangan","blueprint","piksel"].sort(function(){return Math.random()-.5}).slice(0,3).join(", ");
+  var r=await s.json("Kamu art director video animasi penjelasan. Ciptakan SATU gaya visual orisinal yang paling cocok dengan cerita ini dan berbeda dari gaya yang sudah ada ("+STYLES.map(function(x){return x.n}).join(", ")+"). Konteks: "+brief().replace(/\n/g," | ")+". Cerita: "+ctx+". Syarat: gaya harus cocok dengan pokok bahasan, suasana, dan audiens (topik yang suram tidak boleh bergaya ceria seperti permen, topik anak tidak boleh gelap). Harus bisa dibuat dengan kode (SVG, CSS, canvas, three.js), bukan foto realistis. Jangan menyebut merek, karakter, studio, atau karya berhak cipta. Jangan mengunci warna latar, tulis Latar dinamis. Deskripsi maksimal 200 karakter. Inspirasi teknik yang boleh dipakai bila cocok: "+ar+". Balas HANYA JSON dengan kunci n, f, d, c, r: n adalah nama gaya 2 sampai 3 kata, f keluarga satu kata, d deskripsi, c array 5 warna hex, r alasan kecocokan satu kalimat.");
+  if(!r||!r.n||!Array.isArray(r.c))throw 0;
+  st={n:String(r.n),f:String(r.f||"Kejutan"),d:String(r.d||""),c:r.c.slice(0,5).map(String),r:String(r.r||"")}}
+ catch(e){st=null}
+ if(st){STYLES.push(st);state.style=STYLES.length-1;
+  if(fams.indexOf(st.f)<0){fams.push(st.f);var o=document.createElement("option");o.textContent=st.f;o.value=st.f;$("fam").appendChild(o)}
+  $("kejs").textContent="Dipilih: "+st.n+". "+st.r}
+ else{state.style=Math.floor(Math.random()*STYLES.length);$("kejs").textContent="Fitur AI tidak tersedia, jadi gaya dipilih acak dari daftar: "+STYLES[state.style].n+". Cek apakah cocok dengan ceritamu."}
+ $("cari").value="";$("fam").value="";cards();btn.disabled=false;btn.textContent=old};
+$("gen").onclick=function(){
+ if(!state.beats.length){$("s2").scrollIntoView();return}
+ var s=STYLES[state.style==null?0:state.style],p=[];
+ p.push("Buat video animasi berbasis HTML/JS satu file tentang: "+($("topik").value.trim()||"(sesuai narasi di bawah)")+".");
+ p.push("Durasi: "+$("durasi").value+" detik. Rasio: "+$("rasio").value+". Audiens: "+$("audiens").value+". Nada: "+$("nada").value+". Bahasa: "+$("bahasa").value+".");
+ p.push("Gaya: "+s.n+" ("+s.d+") Palet: "+s.c.join(", ")+".");
+ p.push("Sinkron gaya dan cerita: terapkan gaya sebagai bahasa visual, bukan dekorasi. Pilih metafora, objek, warna, dan gerak yang sesuai dengan pokok bahasan dan suasana tiap beat. Bila ada ciri gaya yang bertabrakan dengan topik atau terkesan tidak pantas untuk isinya, sesuaikan ciri itu tanpa mengubah karakter utama gaya."+(s.r?" Alasan gaya ini dipilih: "+s.r:""));
+ p.push("Beat:\n"+state.beats.map(function(b,i){return(i+1)+". "+b.k+"\n   Narasi: "+b.n+"\n   Visual: "+(b.v.trim()||"(rancang sendiri)")+((b.a||"").trim()?"\n   Aset foto: "+b.a.trim():"")}).join("\n"));
+ if(state.manual)p.push("Narasi di atas ditulis sendiri olehku dan sudah final: jangan ubah, tambah, ringkas, atau tulis ulang satu kata pun. Tugasmu hanya merancang dan membangun visualnya. Untuk beat yang catatan visualnya kosong, rancang sendiri visual yang paling menjelaskan narasinya.");
+ if(state.beats.some(function(b){return(b.a||"").trim()}))p.push("Foto dilampirkan di pesan ini. Pakai tiap foto hanya di beat yang menyebutnya, sesuai fungsi yang kutulis. Jika gerakan foto tidak kutulis, pilih sendiri gerakan yang cocok dengan narasi dan komposisi foto (zoom, geser, atau fokus ke bagian penting), dan variasikan antar beat agar tidak monoton. Tanam foto ke animasi sebagai data (kompres bila perlu agar halaman tidak melebihi 16 MB), dan jangan mengubah isi foto selain efek yang kuminta. Jika ada nama file yang tidak cocok dengan lampiran, tanyakan padaku.");
+ var srt=$("srt").value.trim();
+ p.push(srt?"Sinkronkan animasi dengan SRT per kata berikut:\n"+srt+"\nJika SRT hanya per kalimat atau frasa, bagi waktu tiap kata secara proporsional dengan jumlah hurufnya di dalam kalimat itu. Simpan timestamp di file data terpisah (captions), dan hitung tampilan subtitle serta durasi tiap beat dari data itu, bukan dari perkiraan. Sediakan satu konstanta AUDIO_OFFSET (dalam detik) untuk menggeser sinkron, hitung frame dengan pembulatan dari detik dikali fps, dan pastikan durasi total mencakup kata terakhir ditambah satu detik.":"SRT belum tersedia. Beri durasi per beat berdasarkan panjang narasi, tandai jelas bahwa waktunya hanya perkiraan, dan sediakan konstanta AUDIO_OFFSET serta tabel durasi beat yang mudah kuubah.");
+ if($("hasil").value==="mp4"){var R={"16:9":"1920x1080","9:16":"1080x1920","1:1":"1080x1080"}[$("rasio").value]||"1920x1080";
+  p.push("Hasil akhir: file MP4. Bangun animasi HTML satu file dengan kanvas "+R+" piksel, window.DURATION = "+$("durasi").value+" (detik), dan satu fungsi global renderFrame(t) yang menggambar kondisi tepat pada detik t. Fungsi itu harus deterministik: jangan pakai requestAnimationFrame, Date.now, atau Math.random tanpa seed untuk menentukan tampilan. Buat juga skrip Node render.js dengan Playwright yang memuat HTML, memanggil renderFrame untuk tiap frame pada 30 fps, menyimpan PNG, lalu menjalankan ffmpeg untuk menggabungkan frame dengan audio narasi.mp3 menjadi video.mp4 (libx264, yuv420p, aac). Sertakan perintah instalasi dan cara menjalankannya. Jalankan sendiri jika lingkunganmu mengizinkan, dan beri tahu lokasi video.mp4.")}
+ if($("hasil").value==="rm"){var RR={"16:9":"1920x1080","9:16":"1080x1920","1:1":"1080x1080"}[$("rasio").value]||"1920x1080";
+  p.push("Hasil akhir: proyek Remotion (video dari komponen React). Sebelum menulis kode, cari dokumentasi resminya di remotion.dev agar API dan versinya tepat. Pakai TypeScript: src/Root.tsx dengan satu Composition (fps 30, ukuran "+RR+" piksel, durasi "+(+$("durasi").value*30)+" frame), satu komponen per beat yang dibungkus Sequence, dan animasi hanya dari useCurrentFrame, interpolate, dan spring (tanpa CSS animation, setTimeout, atau Math.random tanpa seed). Audio narasi ditaruh di public/narasi.mp3 dan diputar dengan komponen Audio dan staticFile; foto juga lewat folder public dengan Img dan staticFile. Caption per kata dibuat dari SRT. Tulis semua file lengkap, termasuk package.json (semua paket remotion memakai versi yang sama persis, dengan script dev dan render), tsconfig.json, dan remotion.config.ts, sehingga proyek bisa langsung dijalankan. Di bagian paling akhir jawaban, setelah semua file selesai, beri tutorial untuk pemula di "+$("os").value+", berurutan: memasang Node.js, mengekstrak ZIP proyek, npm install, npm run dev untuk pratinjau, lalu perintah render ke MP4. Jika perangkatku hanya HP, jelaskan alternatif tanpa Node.js dan jujur soal batasnya. Beri tahu apa yang perlu kulakukan bila muncul error.")}
+ if($("hasil").value==="hf"||$("hasil").value==="rm")p.push("Pengiriman hasil: jangan tempel kode di chat. Buat semua file sebagai file sungguhan lewat fitur pembuatan file, kemas menjadi satu file ZIP proyek yang siap dijalankan, lalu berikan tautan unduhannya. Di chat tulis hanya ringkasan singkat dan tutorial render. Jika fitur pembuatan file tidak tersedia di chat ini, beri tahu aku dan jelaskan cara mengaktifkannya di pengaturan (Code Execution and File Creation), jangan menempelkan ratusan baris kode.");
+ p.push("Tata letak rapi (wajib): bagi kanvas menjadi zona tetap, yaitu zona objek di bagian tengah atas, zona label tepat di bawah tiap objek, dan zona subtitle di bagian bawah dengan tinggi tetap sekitar 18 persen. Margin aman minimal 6 persen di tiap sisi. Maksimal dua objek tampil bersamaan, dan objek berikutnya hanya boleh masuk setelah objek sebelumnya selesai keluar atau bila berada di slot terpisah dengan jarak horizontal minimal 8 persen. Label menempel pada objeknya (satu wadah, bergerak bersama), maksimal dua kata, dan lebarnya tidak boleh melebihi lebar slot objek. Subtitle maksimal dua baris, dibungkus otomatis, dan tidak boleh terpotong atau menimpa objek. Ukuran huruf subtitle minimal 4 persen tinggi kanvas. Sebelum menulis kode, buat tabel koordinat (x, y, lebar, tinggi) semua elemen untuk tiap beat dan tiap momen transisi, lalu periksa bahwa tidak ada dua kotak yang saling tumpang tindih. Tulis posisi sebagai nilai eksplisit di kode, jangan mengandalkan penataan otomatis browser untuk elemen yang bergerak. Perbaiki tabel sampai tidak ada tumpang tindih, baru tulis file.");
+ if($("hasil").value==="html")p.push("Pemutar audio: sediakan di halaman animasi tombol Pilih audio narasi (input file) agar aku bisa memuat file audio dari perangkatku setelah animasi jadi. Baca file dengan FileReader lalu decodeAudioData lewat Web Audio API, dan putar lewat AudioContext (jangan pakai URL blob atau elemen audio bersumber luar, karena bisa diblokir). Jam animasi mengikuti waktu AudioContext selama audio diputar, dan memakai timer biasa bila audio belum dipilih. Sediakan tombol putar, jeda, dan geser waktu, serta tampilkan durasi audio. Jika SRT tersedia, pergantian beat dan highlight kata mengikuti waktu SRT, bukan durasi tebakan.");
+ if($("hasil").value==="hf"){var RH={"16:9":"1920x1080","9:16":"1080x1920","1:1":"1080x1080"}[$("rasio").value]||"1920x1080";
+  p.push("Hasil akhir: proyek HyperFrames (framework open-source dari HeyGen yang mengubah komposisi HTML menjadi MP4). Sebelum menulis kode, cari dokumentasi resminya di github.com/heygen-com/hyperframes agar sintaksnya tepat, dan ikuti kontrak komposisinya: elemen induk dengan data-composition-id, data-start, data-width, dan data-height; tiap elemen berwaktu memakai class clip dengan data-start, data-duration, dan data-track-index; audio memakai tag audio dengan atribut data yang sama; animasi memakai GSAP dengan timeline paused yang didaftarkan ke window.__timelines[id-komposisi] (tanpa requestAnimationFrame, Date.now, atau Math.random tanpa seed). Muat GSAP dari cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js. Ukuran kanvas "+RH+" piksel, durasi "+$("durasi").value+" detik. Tulis index.html lengkap, dan jika perlu file pendukung lain, tulis juga. Audio narasi dipasang sebagai narasi.mp3 sesuai kontrak, dan caption per kata dibuat dari SRT. Di bagian paling akhir jawaban, setelah semua file selesai ditulis, beri tutorial render untuk pemula di "+$("os").value+", berurutan: memasang Node.js 22 atau lebih baru dan FFmpeg, perintah npx hyperframes init, di mana menaruh index.html dan narasi.mp3, npx hyperframes preview untuk melihat hasil di browser, lalu npx hyperframes render ke MP4. Beri tahu apa yang perlu kulakukan bila muncul error. Jika perangkatku hanya HP, jelaskan alternatif tanpa Node.js dan jujur soal batasnya.")}
+ if($("anti").checked)p.push("Anti slop visual: hindari tampilan generik buatan AI seperti gradasi ungu-biru, kartu rounded seragam dengan bayangan abu-abu, emoji sebagai ilustrasi, dan efek fade-in di semua elemen. Ambil keputusan visual yang spesifik sesuai gaya dan topik: satu elemen yang jadi fokus per beat, gerakan yang menjelaskan sesuatu, bukan dekorasi. Teks di layar singkat dan bukan pengulangan narasi.");
+ p.push($("sb").checked?"Mulai dengan storyboard visual per beat (komposisi, gerak, transisi). Berhenti dan tunggu persetujuan saya sebelum membangun animasi.":"Langsung bangun animasinya tanpa storyboard.");
+ $("prompt").textContent=p.join("\n\n");$("out").hidden=false};
+function cp(id,btn){var t=$(id).value||$(id).textContent;
+ var done=function(){var o=btn.textContent;btn.textContent="Tersalin";setTimeout(function(){btn.textContent=o},1400)};
+ try{navigator.clipboard.writeText(t).then(done,function(){fb(t,done)})}catch(e){fb(t,done)}}
+function fb(t,d){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");d()}catch(e){}document.body.removeChild(a)}
+async function dl(nama,text,btn){try{var d=await claude.use("downloads");if(!d){btn.hidden=true;return}await d.save({filename:nama,data:new Blob([text],{type:"text/plain"})})}catch(e){}}
+function slug(){return($("topik").value.trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40))||"blueprint"}
+$("dn").onclick=function(){if($("naskah").value)dl(slug()+"-naskah.txt",$("naskah").value,this)};
+$("dp").onclick=function(){dl(slug()+"-prompt.txt",$("prompt").textContent,this)};
+$("cp").onclick=function(){cp("prompt",this)};$("cn").onclick=function(){cp("naskah",this)};
+</script>
+</body>
+</html>
